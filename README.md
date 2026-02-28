@@ -1,0 +1,1 @@
+# AI-Based-Waste-Segregation-Carbon-Footprint-Analyser
