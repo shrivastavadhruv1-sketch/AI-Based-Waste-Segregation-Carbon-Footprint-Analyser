@@ -1,0 +1,4 @@
+nohup: ignoring input
+[dotenv@17.3.1] injecting env (3) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+Firebase Admin Initialized successfully.
+Node server running on port 5000

@@ -1,0 +1,15 @@
+hackathon-firebasekey.json
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+flask_api/venv/
+
+# Node
+node_modules/
+
+# Large model files (too big for GitHub)
+*.keras
+*.h5
+*.weights.h5

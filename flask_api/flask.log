@@ -1,0 +1,31 @@
+nohup: ignoring input
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1772324122.656322  121516 cuda_executor.cc:1309] INTERNAL: CUDA Runtime error: Failed call to cudaGetRuntimeVersion: Error loading CUDA libraries. GPU will not be used.: Error loading CUDA libraries. GPU will not be used.
+W0000 00:00:1772324122.669137  121516 gpu_device.cc:2342] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+Skipping registering GPU devices...
+Loading Keras architecture from waste_model.keras...
+Model loaded successfully!
+Flask AI server running on port 8000
+ * Serving Flask app 'app'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.160.71.36:8000
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1772324129.634946  121861 cuda_executor.cc:1309] INTERNAL: CUDA Runtime error: Failed call to cudaGetRuntimeVersion: Error loading CUDA libraries. GPU will not be used.: Error loading CUDA libraries. GPU will not be used.
+W0000 00:00:1772324129.653341  121861 gpu_device.cc:2342] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+Skipping registering GPU devices...
+ * Debugger is active!
+ * Debugger PIN: 419-656-970
+127.0.0.1 - - [01/Mar/2026 05:45:31] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [01/Mar/2026 05:46:16] "GET /health HTTP/1.1" 200 -
+Loading Keras architecture from waste_model.keras...
+Model loaded successfully!
+Flask AI server running on port 8000
+[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 906ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m1s[0m 919ms/step
+127.0.0.1 - - [01/Mar/2026 05:47:26] "POST /predict HTTP/1.1" 200 -
+[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 28ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 43ms/step
+127.0.0.1 - - [01/Mar/2026 05:47:31] "POST /predict HTTP/1.1" 200 -

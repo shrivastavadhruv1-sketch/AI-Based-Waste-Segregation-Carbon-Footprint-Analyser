@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Interactive sustainability dashboard with real-time waste classification analytics, carbon tracking, and category distribution insights.">
+    <title>Dashboard — EcoSort AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+
+    <!-- Auth Scripts -->
+    <script src="assets/js/guard.js"></script>
+    <script src="assets/js/api.js"></script>
+</head>
+
+<body>
+    <div class="noise-overlay"></div>
+    <!-- ========== NAVIGATION ========== -->
+
+    <!-- System Status Bar -->
+    <div class="system-status-bar">
+        <div class="container status-container">
+            <span class="status-item"><span class="status-dot healthy"></span> ML Service: Healthy</span>
+            <span class="status-item"><span class="status-dot healthy"></span> API Latency: 220ms</span>
+            <span class="status-item"><span class="status-dot healthy"></span> Prediction Queue: 0</span>
+        </div>
+    </div>
+    \ <nav class="navbar dark-nav" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo" id="nav-logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="2.5" />
+                    <path d="M10 18 L14 22 L22 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <span>EcoSort AI</span>
+            </a>
+            <div class="nav-links" id="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="analyzer.html" class="nav-link">Waste Analyzer</a>
+                <a href="carbon.html" class="nav-link">Carbon Impact</a>
+                <a href="dashboard.html" class="nav-link active">Dashboard</a>
+                <a href="insights.html" class="nav-link">Insights</a>
+                <a href="reports.html" class="nav-link">Reports</a>
+            </div>
+            <div class="nav-actions">
+                <a href="analyzer.html" class="btn btn-primary nav-cta">
+                    Try Now <span class="btn-arrow">→</span>
+                </a>
+                <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========== DASHBOARD PAGE ========== -->
+    <main>
+        <section class="dashboard-page-section">
+            <div class="bg-blob blob-1"></div>
+            <div class="bg-blob blob-2"></div>
+            <div class="container">
+                <div class="dashboard-page-header">
+                    <div>
+                        <div class="section-label">Sustainability Dashboard</div>
+                        <h1 class="section-title">Real-time analytics<br>& monitoring</h1>
+                    </div>
+                    <div class="dashboard-header-actions">
+
+
+                        <div class="export-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="alert('Downloading PDF...')">📄 Export
+                                PDF</button>
+                            <button class="btn btn-secondary btn-sm" onclick="alert('Downloading CSV...')">📊 Export
+                                CSV</button>
+                            <button class="btn btn-outline btn-sm" style="color:white; border-color:white;"
+                                onclick="alert('Scheduling Report...')">✉️ Schedule</button>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <!-- Filters -->
+                <div class="dashboard-filters">
+                    <select class="filter-select">
+                        <option>Last 7 Days</option>
+                        <option selected>Last 30 Days</option>
+                        <option>Custom Range</option>
+                    </select>
+                    <select class="filter-select">
+                        <option>All Categories</option>
+                        <option>Biodegradable</option>
+                        <option>Recyclable</option>
+                        <option>Hazardous</option>
+                    </select>
+                    <select class="filter-select">
+                        <option>All Users (Admin)</option>
+                        <option>Top Performers</option>
+                    </select>
+                    <select class="filter-select">
+                        <option>All Confidences</option>
+                        <option>&gt; 90% Confidence</option>
+                        <option>&lt; 70% Confidence</option>
+                    </select>
+                </div>
+
+
+                <!-- AI Predictive Insights -->
+                <div class="ai-insights-row">
+                    <div class="insight-card positive-insight">
+                        <div class="insight-icon">📈</div>
+                        <div class="insight-text"><strong>Trending +12%</strong> vs last month in proper recyclable
+                            sorting.</div>
+                    </div>
+                    <div class="insight-card warning-insight">
+                        <div class="insight-icon">⚠️</div>
+                        <div class="insight-text"><strong>Hazardous waste</strong> increased 18% this week. Please
+                            review protocols.</div>
+                    </div>
+                    <div class="insight-card suggestion-insight">
+                        <div class="insight-icon">💡</div>
+                        <div class="insight-text">If this trend continues, you’ll save <strong>620kg CO₂</strong> this
+                            year!</div>
+                    </div>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span class="kpi-icon green">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                                    <circle cx="8.5" cy="8.5" r="1.5" />
+                                    <path d="M21 15l-5-5L5 21" />
+                                </svg>
+                            </span>
+                            <span class="kpi-trend positive">+12.5%</span>
+                        </div>
+                        <div class="kpi-value" id="kpi-total-scans">...</div>
+                        <div class="kpi-label">Total Scans</div>
+                        <div class="kpi-sparkline" id="kpi-spark-scans"></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span class="kpi-icon teal">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M12 22c4-4 8-7.5 8-12a8 8 0 10-16 0c0 4.5 4 8 8 12z" />
+                                    <circle cx="12" cy="10" r="3" />
+                                </svg>
+                            </span>
+                            <span class="kpi-trend positive">+18.3%</span>
+                        </div>
+                        <div class="kpi-value green-text" id="kpi-co2-saved">...</div>
+                        <div class="kpi-label">CO₂ Saved</div>
+                        <div class="kpi-sparkline" id="kpi-spark-co2"></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span class="kpi-icon purple">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                                    <line x1="9" y1="9" x2="9.01" y2="9" />
+                                    <line x1="15" y1="9" x2="15.01" y2="9" />
+                                </svg>
+                            </span>
+                            <span class="kpi-trend positive">+2.1%</span>
+                        </div>
+                        <div class="kpi-value">94.7%</div>
+                        <div class="kpi-label">Classification Accuracy</div>
+                        <div class="kpi-sparkline" id="kpi-spark-accuracy"></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span class="kpi-icon orange">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                                    <circle cx="9" cy="7" r="4" />
+                                    <path d="M23 21v-2a4 4 0 00-3-3.87" />
+                                    <path d="M16 3.13a4 4 0 010 7.75" />
+                                </svg>
+                            </span>
+                            <span class="kpi-trend positive">+8.7%</span>
+                        </div>
+                        <div class="kpi-value">3,214</div>
+                        <div class="kpi-label">Active Users</div>
+                        <div class="kpi-sparkline" id="kpi-spark-users"></div>
+                    </div>
+                </div>
+
+
+                <div class="dashboard-charts-layout">
+                    <!-- Charts Row with drill down -->
+                    <div class="dashboard-main-column">
+                        <div class="dashboard-charts-row">
+                            <div class="dashboard-chart-card main-chart interactive-chart"
+                                onclick="alert('Drilling down into Classification Trends...')">
+                                <div class="chart-card-header">
+                                    <h3>Classification Trends <span class="chart-hint">(Click to Drill Down)</span></h3>
+                                    <div class="chart-tabs">
+                                        <button class="chart-tab active" data-chart="overview">Overview</button>
+                                        <button class="chart-tab" data-chart="carbon">Carbon</button>
+                                    </div>
+                                </div>
+                                <div class="chart-card-body">
+                                    <canvas id="dashboardChart" width="500" height="250"></canvas>
+                                </div>
+                            </div>
+                            <div class="dashboard-chart-card side-chart interactive-chart"
+                                onclick="alert('Drilling down into Category Distribution...')">
+                                <div class="chart-card-header">
+                                    <h3>Category Distribution <span class="chart-hint">(Click)</span></h3>
+                                </div>
+                                <div class="chart-card-body" style="display:flex; justify-content:center;">
+                                    <canvas id="categoryPieChart" width="200" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Activity Feed (Moved inside main column) -->
+                        <div class="activity-feed-card">
+                            <div class="chart-card-header">
+                                <h3>Recent Activity</h3>
+                                <span class="activity-live-dot">
+                                    <span class="live-pulse"></span>
+                                    Live
+                                </span>
+                            </div>
+                            <div class="activity-list">
+                                <div class="activity-item">
+                                    <span class="activity-badge green">Bio</span>
+                                    <div class="activity-info">
+                                        <span class="activity-name">Food Waste — Banana Peel</span>
+                                        <span class="activity-meta">98% confidence · 0.45 kg CO₂ saved</span>
+                                    </div>
+                                    <span class="activity-time">2 min ago</span>
+                                </div>
+                                <div class="activity-item">
+                                    <span class="activity-badge blue">Rec</span>
+                                    <div class="activity-info">
+                                        <span class="activity-name">Plastic Bottle — PET</span>
+                                        <span class="activity-meta">95% confidence · 1.80 kg CO₂ saved</span>
+                                    </div>
+                                    <span class="activity-time">5 min ago</span>
+                                </div>
+                                <div class="activity-item">
+                                    <span class="activity-badge red">Haz</span>
+                                    <div class="activity-info">
+                                        <span class="activity-name">Battery Cell — Lithium</span>
+                                        <span class="activity-meta">92% confidence · 2.50 kg CO₂ saved</span>
+                                    </div>
+                                    <span class="activity-time">12 min ago</span>
+                                </div>
+                                <div class="activity-item">
+                                    <span class="activity-badge blue">Rec</span>
+                                    <div class="activity-info">
+                                        <span class="activity-name">Glass Jar — Clear</span>
+                                        <span class="activity-meta">97% confidence · 1.20 kg CO₂ saved</span>
+                                    </div>
+                                    <span class="activity-time">18 min ago</span>
+                                </div>
+                                <div class="activity-item">
+                                    <span class="activity-badge green">Bio</span>
+                                    <div class="activity-info">
+                                        <span class="activity-name">Garden Waste — Leaves</span>
+                                        <span class="activity-meta">91% confidence · 0.35 kg CO₂ saved</span>
+                                    </div>
+                                    <span class="activity-time">25 min ago</span>
+                                </div>
+                                <div class="activity-item">
+                                    <span class="activity-badge green">Bio</span>
+                                    <div class="activity-info">
+                                        <span class="activity-name">Tea Bags — Used</span>
+                                        <span class="activity-meta">94% confidence · 0.25 kg CO₂ saved</span>
+                                    </div>
+                                    <span class="activity-time">32 min ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Eco Score & Gamification -->
+                    <div class="dashboard-sidebar-row">
+                        <div class="dashboard-chart-card gamification-card">
+                            <div class="chart-card-header">
+                                <h3>Eco Score</h3>
+                            </div>
+                            <div class="eco-score-body">
+                                <div class="eco-badge gold">🏅 Gold Rank</div>
+                                <div class="eco-points">8,240 <span class="pts">pts</span></div>
+                                <div class="eco-rank-text">Top 5% of all users this month</div>
+                                <div class="score-breakdown">
+                                    <div class="score-item"><span>Recycling Ratio</span> <span
+                                            class="green-text">+340</span></div>
+                                    <div class="score-item"><span>Hazard Reduction</span> <span
+                                            class="green-text">+120</span></div>
+                                    <div class="score-item"><span>Consistency Streak</span> <span class="blue-text">14
+                                            Days</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Impact Projection & Equivalents -->
+                        <div class="dashboard-chart-card projection-card">
+                            <div class="chart-card-header">
+                                <h3>Annual Projection</h3>
+                            </div>
+                            <div class="projection-body">
+                                <div class="proj-main">~850 kg CO₂</div>
+                                <p class="proj-sub">Projected savings based on 30-day run rate.</p>
+                                <div class="equivalent-list">
+                                    <div class="eq-item"><span>🌳 <strong>42</strong> Trees</span> planted</div>
+                                    <div class="eq-item"><span>🚗 <strong>3,400</strong> km</span> driving avoided</div>
+                                    <div class="eq-item"><span>⚡ <strong>14</strong> homes</span> powered 1 day</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Performance Comparison -->
+                        <div class="dashboard-chart-card comparison-card">
+                            <div class="chart-card-header">
+                                <h3>Performance & Model Health</h3>
+                            </div>
+                            <div class="comparison-body">
+                                <div class="comp-row"><span>You vs Avg User</span> <span class="comp-val positive">+24%
+                                        Better</span></div>
+                                <div class="comp-row"><span>This Wk vs Last</span> <span class="comp-val positive">+8%
+                                        Scans</span></div>
+                                <div class="comp-row"><span>Avg Confidence</span> <span class="comp-val positive">96.4%
+                                        ↗</span></div>
+                                <div class="comp-row"><span>Misclassification</span> <span class="comp-val warning">1.2%
+                                        Flagged</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </section>
+    </main>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-col footer-brand">
+                <a href="index.html" class="footer-logo">
+                    <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+                        <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="2.5" />
+                        <path d="M10 18 L14 22 L22 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                    <span>EcoSort AI</span>
+                </a>
+                <p class="footer-tagline">AI-powered waste segregation<br>& carbon footprint analysis</p>
+            </div>
+            <div class="footer-col">
+                <h4>Features</h4>
+                <a href="analyzer.html">Waste Analyzer</a>
+                <a href="carbon.html">Carbon Impact</a>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="insights.html">Insights</a>
+            </div>
+            <div class="footer-col">
+                <h4>Technology</h4>
+                <a href="#">MobileNetV2</a>
+                <a href="#">TensorFlow</a>
+                <a href="#">Computer Vision</a>
+                <a href="#">Flask API</a>
+            </div>
+            <div class="footer-col">
+                <h4>Resources</h4>
+                <a href="reports.html">Reports</a>
+                <a href="#">Documentation</a>
+                <a href="#">API Reference</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 EcoSort AI — NMIMS University. Built for sustainability.</p>
+        </div>
+    </footer>
+
+    <script src="assets/js/app.js"></script>
+</body>
+
+</html>

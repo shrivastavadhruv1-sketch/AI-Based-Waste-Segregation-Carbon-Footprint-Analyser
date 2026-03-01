@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — EcoScan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css"> <!-- Fallback and tokens -->
+    <link rel="stylesheet" href="assets/css/auth.css">
+
+    <!-- Scripts -->
+    <script src="assets/js/guard.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/auth.js"></script>
+</head>
+
+<body class="auth-page">
+    <div class="noise-overlay"></div>
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+
+    <div class="auth-card">
+        <div class="auth-header">
+            <a href="index.html" class="auth-logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="2.5" />
+                    <path d="M10 18 L14 22 L22 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <span>EcoScan</span>
+            </a>
+            <h1>Welcome back</h1>
+            <p>Log in to access your dashboard and insights</p>
+        </div>
+
+        <form id="login-form" class="auth-form">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="name@company.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="auth-btn" id="login-btn">Log in</button>
+            <div id="login-error" class="auth-error">Incorrect email or password.</div>
+        </form>
+
+        <div class="auth-footer">
+            Don't have an account? <a href="register.html">Sign up</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('login-btn');
+            const errorDiv = document.getElementById('login-error');
+
+            errorDiv.style.display = 'none';
+            btn.textContent = 'Logging in...';
+            btn.disabled = true;
+
+            try {
+                const response = await login(email, password);
+
+                // On success:
+                localStorage.setItem('token', response.token);
+                localStorage.setItem('role', response.role);
+                localStorage.setItem('userName', response.name);
+                localStorage.setItem('userOrg', response.organization);
+
+                if (response.role === 'org_admin' || response.role === 'super_admin') {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
+            } catch (err) {
+                errorDiv.textContent = err.message || 'Login failed. Please try again.';
+                errorDiv.style.display = 'block';
+                btn.textContent = 'Log in';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>
