@@ -174,6 +174,8 @@ const wasteDatabase = {
     }
 };
 
+
+
 function initAnalyzer() {
     const uploadZone = document.getElementById('upload-zone');
     const fileInput = document.getElementById('file-input');
@@ -347,14 +349,20 @@ async function analyzeWaste() {
             carbonSavedDisplay = parseFloat((flaskCarbonPer1kg * WEIGHT_KG).toFixed(3));
             carbonSavedForSave = carbonSavedDisplay;
             console.log(
-                `[Carbon] Using Flask material-aware value: ${data.carbonData.subMaterial} ` +
-                `@ ${data.carbonData.emissionFactor} kg CO₂/kg (basis: ${data.carbonData.basis}) ` +
-                `→ ${carbonSavedDisplay} kg saved (${WEIGHT_KG}kg item)`
+                `[Carbon] ${data.carbonData.subMaterial} @ ${data.carbonData.emissionFactor} ` +
+                `kg CO₂/kg · ${data.carbonData.basis} → ${carbonSavedDisplay} kg saved`
             );
         }
 
         // We only show waste category — the model does not predict specific item names
         displayResults(data.wasteType, confidence, dbData, carbonSavedDisplay);
+
+        // Show small attribution label (what material Flask detected + basis)
+        const materialLabelEl = document.getElementById('carbon-material-label');
+        if (materialLabelEl && data.carbonData && data.carbonData.subMaterial) {
+            materialLabelEl.textContent =
+                `📊 Detected as: ${data.carbonData.subMaterial} · ${data.carbonData.basis}`;
+        }
 
         // Upload the successful scan to the user's dashboard via Node API
         if (typeof apiCall === 'function') {
@@ -454,6 +462,10 @@ function resetAnalyzer() {
     const confValue = document.getElementById('confidence-value');
     if (confFill) confFill.style.width = '0%';
     if (confValue) confValue.textContent = '0%';
+
+    // Reset material attribution label
+    const materialLabelEl = document.getElementById('carbon-material-label');
+    if (materialLabelEl) materialLabelEl.textContent = '';
 }
 
 
