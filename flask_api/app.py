@@ -3,6 +3,7 @@ import numpy as np
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from PIL import Image
+from carbon import calculate_carbon   # material-aware CO₂ module
 
 # Suppress overly verbose TF warnings
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -111,10 +112,29 @@ def predict():
         if float(predictions[top_index if top_class != 'Hazardous' else HAZARDOUS_IDX]) < CONFIDENCE_THRESHOLD and top_class != 'Hazardous':
             top_class = 'Uncertain – Possibly Non-Waste'
 
+        # ── Carbon Calculation ────────────────────────────────────────────
+        # Use the filename as a free-text hint for sub-material detection.
+        # Confidence is passed as 0–1 float for weighting.
+        # Weight defaults to 1.0 kg here; Node.js applies the real weight
+        # when the user saves the scan (carbonSaved × weightKg).
+        carbon_data = {}
+        if top_class not in ('Uncertain – Possibly Non-Waste',):
+            raw_confidence = float(predictions[
+                top_index if top_class != 'Hazardous' else HAZARDOUS_IDX
+            ])
+            hint = file.filename or ''
+            carbon_data = calculate_carbon(
+                waste_type  = top_class,
+                confidence  = raw_confidence,
+                hint        = hint,
+                weight_kg   = 1.0
+            )
+
         return jsonify({
-            'wasteType': top_class,
+            'wasteType':  top_class,
             'confidence': top_confidence,
-            'allScores': confidence_scores
+            'allScores':  confidence_scores,
+            'carbonData': carbon_data
         })
 
     except Exception as e:
