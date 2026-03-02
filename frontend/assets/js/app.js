@@ -751,45 +751,301 @@ function initChartTabs() {
 // REPORTS PAGE — Functions
 // ========================================
 function downloadReport(reportId) {
-    // Simulate download
+    // Simulate download for static demo reports
     const btn = event.target.closest('button');
     const originalText = btn.innerHTML;
     btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg> Preparing...';
     btn.disabled = true;
-
     setTimeout(() => {
         btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg> Downloaded!';
         btn.style.background = 'var(--primary-dark)';
-
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-            btn.style.background = '';
-        }, 2000);
+        setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; btn.style.background = ''; }, 2000);
     }, 1500);
+}
+
+async function initReportsPage() {
+    const label = document.getElementById('my-scan-count-label');
+
+    // Not on the reports page, or api.js not loaded
+    if (typeof apiCall !== 'function') {
+        if (label) label.textContent = '📊 Login to load your data';
+        return;
+    }
+
+    try {
+        const stats = await apiCall('/scans/my/stats', 'GET');
+
+        // Update the scan count label in the "My Personal Scan Report" card
+        if (label) label.textContent = `📊 ${stats.totalScans} scan${stats.totalScans !== 1 ? 's' : ''} recorded`;
+
+        // If the user has no scans yet, leave the demo cards as-is
+        if (!stats || stats.totalScans === 0) return;
+
+        // --- Swap the February summary cards with real user data ---
+        const totalScansEl = document.getElementById('rpt-total-scans');
+        const scansChangeEl = document.getElementById('rpt-scans-change');
+        const scansBadge = document.getElementById('rpt-scans-badge');
+
+        const carbonEl = document.getElementById('rpt-carbon-saved');
+        const carbonChange = document.getElementById('rpt-carbon-change');
+        const carbonBadge = document.getElementById('rpt-carbon-badge');
+
+        if (totalScansEl) totalScansEl.textContent = stats.totalScans.toLocaleString();
+        if (scansChangeEl) scansChangeEl.textContent = 'Your total lifetime scans';
+        if (scansBadge) { scansBadge.textContent = 'Your data'; scansBadge.style.background = '#d1fae5'; scansBadge.style.color = '#065f46'; }
+
+        if (carbonEl) carbonEl.textContent = stats.totalCarbonSaved.toFixed(2) + ' kg';
+        if (carbonChange) carbonChange.textContent = `${stats.totalWeightKg.toFixed(2)} kg waste classified`;
+        if (carbonBadge) { carbonBadge.textContent = 'Your data'; carbonBadge.style.background = '#d1fae5'; carbonBadge.style.color = '#065f46'; }
+
+        // Update the section subtitle too
+        const subtitle = document.querySelector('.reports-hero ~ main .section-subtitle, section.section-white .section-subtitle');
+        // Find the subtitle near report-summary-grid
+        const summaryGrid = document.querySelector('.report-summary-grid');
+        if (summaryGrid) {
+            const sec = summaryGrid.closest('section');
+            if (sec) {
+                const sub = sec.querySelector('.section-subtitle');
+                if (sub) sub.textContent = 'Your personal environmental impact — based on your scan history.';
+            }
+        }
+
+    } catch (e) {
+        // User not logged in or API down — leave demo data, update label
+        if (label) label.textContent = '📊 Log in to see your scan count';
+    }
+}
+
+// ========================================
+// CARBON IMPACT PAGE — Live user stats
+// ========================================
+async function initCarbonPageStats() {
+    // Only run on carbon page (check for a unique element)
+    const bigNum = document.getElementById('carbon-total-saved');
+    if (!bigNum || typeof apiCall !== 'function') return;
+
+    try {
+        const stats = await apiCall('/scans/my/stats', 'GET');
+
+        if (!stats || stats.totalScans === 0) return; // No scans yet — leave demo
+
+        const total = stats.totalCarbonSaved;
+        const bd = stats.categoryBreakdown || {};
+        const carbonRates = { Biodegradable: 0.5, Recyclable: 1.2, Hazardous: 2.0, 'E-Waste': 3.5 };
+
+        // Compute CO2 per category (count × rate × 1.5kg avg weight)
+        const bioCarbon = (bd['Biodegradable'] || 0) * 1.5 * carbonRates['Biodegradable'];
+        const recCarbon = ((bd['Recyclable'] || 0) + (bd['E-Waste'] || 0)) * 1.5 * carbonRates['Recyclable'];
+        const hazCarbon = (bd['Hazardous'] || 0) * 1.5 * carbonRates['Hazardous'];
+
+        const bioP = total > 0 ? Math.round((bioCarbon / total) * 100) : 0;
+        const recP = total > 0 ? Math.round((recCarbon / total) * 100) : 0;
+        const hazP = total > 0 ? Math.round((hazCarbon / total) * 100) : 0;
+
+        // Update the big card
+        bigNum.textContent = total.toFixed(2);
+
+        const trendBadge = document.getElementById('carbon-trend-badge');
+        if (trendBadge) trendBadge.textContent = `${stats.totalScans} items scanned`;
+
+        const demoNote = document.getElementById('carbon-demo-note');
+        if (demoNote) demoNote.style.display = 'none'; // Hide "sample data" note
+
+        // Update the category breakdown mini-cards
+        const bioVal = document.getElementById('carbon-bio-val');
+        const recVal = document.getElementById('carbon-rec-val');
+        const hazVal = document.getElementById('carbon-haz-val');
+        const bioPct = document.getElementById('carbon-bio-pct');
+        const recPct = document.getElementById('carbon-rec-pct');
+        const hazPct = document.getElementById('carbon-haz-pct');
+
+        if (bioVal) bioVal.textContent = bioCarbon.toFixed(2) + ' kg';
+        if (recVal) recVal.textContent = recCarbon.toFixed(2) + ' kg';
+        if (hazVal) hazVal.textContent = hazCarbon.toFixed(2) + ' kg';
+        if (bioPct) bioPct.textContent = bioP + '%';
+        if (recPct) recPct.textContent = recP + '%';
+        if (hazPct) hazPct.textContent = hazP + '%';
+
+        // Update items processed (total scans)
+        const totalItemsEl = document.querySelector('.carbon-stat-mini-val');
+        // Find the "Total Items Processed" specifically
+        document.querySelectorAll('.carbon-stat-mini').forEach(card => {
+            const lbl = card.querySelector('.carbon-stat-mini-label');
+            if (lbl && lbl.textContent.includes('Total Items')) {
+                const valEl = card.querySelector('.carbon-stat-mini-val');
+                if (valEl) {
+                    valEl.textContent = stats.totalScans.toLocaleString();
+                    // Remove the Sample badge
+                    const badge = valEl.querySelector('.demo-badge');
+                    if (badge) badge.remove();
+                }
+            }
+        });
+
+    } catch (e) {
+        // Not logged in or API down — demo data stays, no changes
+        console.log('Carbon page: using demo data (user not logged in or API unavailable)');
+    }
+}
+
+async function exportMyScansAsPDF(event) {
+    const btn = event ? event.target.closest('button') : document.getElementById('my-report-btn');
+    const originalHTML = btn ? btn.innerHTML : '';
+    if (btn) { btn.innerHTML = '⏳ Fetching your data...'; btn.disabled = true; }
+
+    try {
+        if (typeof apiCall !== 'function') throw new Error('Not authenticated');
+
+        const scans = await apiCall('/scans/my', 'GET');
+
+        if (!scans || scans.length === 0) {
+            alert('No scans found. Scan some waste items first using the Waste Analyzer!');
+            return;
+        }
+
+        // ---- Build PDF ----
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+        const userName = localStorage.getItem('userName') || localStorage.getItem('userEmail') || 'User';
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        // Header bar
+        doc.setFillColor(16, 185, 129); // emerald
+        doc.rect(0, 0, 210, 28, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(20);
+        doc.setFont('helvetica', 'bold');
+        doc.text('EcoSort AI', 14, 12);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Personal Waste & Carbon Impact Report', 14, 20);
+        doc.text(`Generated: ${dateStr}`, 196, 20, { align: 'right' });
+
+        // Sub-header info
+        doc.setTextColor(30, 30, 30);
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Report for: ${userName}`, 14, 38);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`Total scans included: ${scans.length}`, 14, 44);
+
+        // --- Compute totals ---
+        let totalWeight = 0, totalCarbon = 0;
+        const categoryCount = {};
+
+        const tableRows = scans.map((scan, idx) => {
+            const ts = scan.createdAt?.seconds
+                ? new Date(scan.createdAt.seconds * 1000).toLocaleDateString('en-IN')
+                : 'N/A';
+            const w = parseFloat(scan.weightKg || 0);
+            const c = parseFloat(scan.carbonSaved || 0);
+            totalWeight += w;
+            totalCarbon += c;
+            categoryCount[scan.wasteType] = (categoryCount[scan.wasteType] || 0) + 1;
+            return [
+                idx + 1,
+                scan.wasteType || 'Unknown',
+                w.toFixed(2) + ' kg',
+                c.toFixed(3) + ' kg',
+                (scan.confidence || 0) + '%',
+                ts
+            ];
+        });
+
+        // Totals footer row
+        tableRows.push([
+            { content: 'TOTALS', colSpan: 2, styles: { fontStyle: 'bold', fillColor: [240, 253, 244] } },
+            { content: totalWeight.toFixed(2) + ' kg', styles: { fontStyle: 'bold', fillColor: [240, 253, 244] } },
+            { content: totalCarbon.toFixed(3) + ' kg CO₂', styles: { fontStyle: 'bold', fillColor: [240, 253, 244], textColor: [5, 150, 105] } },
+            { content: '', styles: { fillColor: [240, 253, 244] } },
+            { content: '', styles: { fillColor: [240, 253, 244] } }
+        ]);
+
+        doc.autoTable({
+            startY: 50,
+            head: [['#', 'Waste Type', 'Weight', 'CO₂ Saved', 'Confidence', 'Date']],
+            body: tableRows,
+            headStyles: { fillColor: [16, 185, 129], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+            bodyStyles: { fontSize: 8.5, textColor: [30, 30, 30] },
+            alternateRowStyles: { fillColor: [249, 250, 251] },
+            columnStyles: {
+                0: { cellWidth: 10, halign: 'center' },
+                1: { cellWidth: 38 },
+                2: { cellWidth: 28, halign: 'right' },
+                3: { cellWidth: 32, halign: 'right' },
+                4: { cellWidth: 26, halign: 'center' },
+                5: { cellWidth: 30, halign: 'center' }
+            },
+            margin: { left: 14, right: 14 },
+            tableLineColor: [229, 231, 235],
+            tableLineWidth: 0.3
+        });
+
+        // Summary box below table
+        const finalY = doc.lastAutoTable.finalY + 10;
+        doc.setFillColor(240, 253, 244);
+        doc.roundedRect(14, finalY, 182, 36, 3, 3, 'F');
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(5, 150, 105);
+        doc.text('Summary', 20, finalY + 8);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(30, 30, 30);
+
+        const catSummary = Object.entries(categoryCount)
+            .map(([k, v]) => `${k}: ${v}`).join('   |   ');
+        doc.text(`Total Scans: ${scans.length}`, 20, finalY + 16);
+        doc.text(`Total Waste Classified: ${totalWeight.toFixed(2)} kg`, 20, finalY + 23);
+        doc.setTextColor(5, 150, 105);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Total CO₂ Saved: ${totalCarbon.toFixed(3)} kg`, 20, finalY + 30);
+        doc.setTextColor(100, 100, 100);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.text(`Breakdown — ${catSummary}`, 20, finalY + 37);
+
+        // Footer
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(7.5);
+            doc.setTextColor(160, 160, 160);
+            doc.text('EcoSort AI — NMIMS University | AI-Based Waste Segregation & Carbon Footprint Analyser', 14, 292);
+            doc.text(`Page ${i} of ${pageCount}`, 196, 292, { align: 'right' });
+        }
+
+        doc.save(`EcoSort_MyReport_${now.toISOString().slice(0, 10)}.pdf`);
+
+    } catch (err) {
+        console.error('PDF Export Error:', err);
+        if (err.message && err.message.includes('authenticated')) {
+            alert('Please log in to export your personal report.');
+        } else {
+            alert('Failed to generate PDF. Make sure the backend is running.');
+        }
+    } finally {
+        if (btn) { btn.innerHTML = originalHTML; btn.disabled = false; }
+    }
 }
 
 function generateCustomReport() {
     const startDate = document.getElementById('report-start-date');
     const endDate = document.getElementById('report-end-date');
     const format = document.getElementById('report-format');
-
     if (!startDate || !endDate || !format) return;
-
     const btn = event.target.closest('button');
     const originalText = btn.innerHTML;
     btn.innerHTML = 'Generating Report...';
     btn.disabled = true;
-
     setTimeout(() => {
         btn.innerHTML = '✓ Report Generated Successfully!';
         btn.style.background = 'var(--primary-dark)';
-
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-            btn.style.background = '';
-        }, 2500);
+        setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; btn.style.background = ''; }, 2500);
     }, 2000);
 }
 
@@ -836,9 +1092,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Carbon page
     initCarbonChart();
+    initCarbonPageStats();
 
     // Dashboard page
     initDashboardCharts();
+
+    // Reports page
+    initReportsPage();
 
     // Global Button Ripple Effect
     document.addEventListener('click', function (e) {

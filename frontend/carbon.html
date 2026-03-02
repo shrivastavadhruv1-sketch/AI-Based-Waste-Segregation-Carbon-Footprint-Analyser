@@ -92,7 +92,7 @@
                         <div class="carbon-big-unit">kg CO₂ Saved</div>
                         <div class="carbon-big-sub">Total carbon emissions prevented through proper waste segregation
                         </div>
-                        <div class="carbon-trend-badge positive">
+                        <div class="carbon-trend-badge positive" id="carbon-trend-badge">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
                                 <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
@@ -100,6 +100,9 @@
                             </svg>
                             +18.3% this month
                         </div>
+                        <div class="demo-note" id="carbon-demo-note" style="margin-top:10px;">* Illustrative sample data
+                            for demonstration.
+                            Your personal stats are tracked after login.</div>
                     </div>
                     <div class="carbon-stats-side">
                         <div class="carbon-stat-mini">
@@ -110,10 +113,10 @@
                                 </svg>
                             </div>
                             <div class="carbon-stat-mini-info">
-                                <span class="carbon-stat-mini-val">2,156 kg</span>
+                                <span class="carbon-stat-mini-val" id="carbon-bio-val">2,156 kg</span>
                                 <span class="carbon-stat-mini-label">From Biodegradable</span>
                             </div>
-                            <span class="carbon-stat-mini-percent positive">41%</span>
+                            <span class="carbon-stat-mini-percent positive" id="carbon-bio-pct">41%</span>
                         </div>
                         <div class="carbon-stat-mini">
                             <div class="carbon-stat-mini-icon blue">
@@ -124,10 +127,10 @@
                                 </svg>
                             </div>
                             <div class="carbon-stat-mini-info">
-                                <span class="carbon-stat-mini-val">2,389 kg</span>
+                                <span class="carbon-stat-mini-val" id="carbon-rec-val">2,389 kg</span>
                                 <span class="carbon-stat-mini-label">From Recycling</span>
                             </div>
-                            <span class="carbon-stat-mini-percent positive">45%</span>
+                            <span class="carbon-stat-mini-percent positive" id="carbon-rec-pct">45%</span>
                         </div>
                         <div class="carbon-stat-mini">
                             <div class="carbon-stat-mini-icon red">
@@ -139,10 +142,10 @@
                                 </svg>
                             </div>
                             <div class="carbon-stat-mini-info">
-                                <span class="carbon-stat-mini-val">702 kg</span>
+                                <span class="carbon-stat-mini-val" id="carbon-haz-val">702 kg</span>
                                 <span class="carbon-stat-mini-label">From Hazardous Handling</span>
                             </div>
-                            <span class="carbon-stat-mini-percent positive">14%</span>
+                            <span class="carbon-stat-mini-percent positive" id="carbon-haz-pct">14%</span>
                         </div>
                         <div class="carbon-stat-mini highlight-card">
                             <div class="carbon-stat-mini-icon teal">
@@ -153,7 +156,8 @@
                                 </svg>
                             </div>
                             <div class="carbon-stat-mini-info">
-                                <span class="carbon-stat-mini-val">15,247</span>
+                                <span class="carbon-stat-mini-val">15,247 <span class="demo-badge inline"
+                                        style="font-size:9px;">Sample</span></span>
                                 <span class="carbon-stat-mini-label">Total Items Processed</span>
                             </div>
                             <span class="carbon-stat-mini-percent neutral">100%</span>
@@ -298,6 +302,8 @@
             <div class="container">
                 <div class="section-label">Real-world equivalents</div>
                 <h2 class="section-title">What 5,247 kg CO₂ saved<br>really means</h2>
+                <p class="demo-note" style="margin-bottom:24px;">* These equivalents are based on sample demonstration
+                    data. Use the Waste Analyzer to track your real impact.</p>
                 <div class="equivalents-grid">
                     <div class="equivalent-card">
                         <div class="equivalent-icon">🌳</div>

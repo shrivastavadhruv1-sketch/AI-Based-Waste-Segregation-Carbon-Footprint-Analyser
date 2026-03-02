@@ -11,6 +11,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/styles.css">
+    <!-- jsPDF + AutoTable for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
     <!-- Auth Scripts -->
     <script src="assets/js/guard.js"></script>
@@ -81,7 +84,8 @@
             <div class="container">
                 <div class="section-label">Latest report</div>
                 <h2 class="section-title">February 2026 Summary</h2>
-                <p class="section-subtitle">Environmental impact report for the month of February 2026.</p>
+                <p class="section-subtitle">Sample data for demonstration — illustrating what a monthly environmental
+                    impact report would look like.</p>
 
                 <div class="report-summary-grid">
                     <div class="report-summary-card">
@@ -94,8 +98,9 @@
                             </svg>
                             <span>Total Classifications</span>
                         </div>
-                        <div class="report-summary-value">2,847</div>
-                        <div class="report-summary-change positive">+12.5% from Jan</div>
+                        <div class="report-summary-value" id="rpt-total-scans">2,847</div>
+                        <div class="report-summary-change positive" id="rpt-scans-change">+12.5% from Jan</div>
+                        <span class="demo-badge" id="rpt-scans-badge" style="margin-top:4px;">Sample data</span>
                     </div>
                     <div class="report-summary-card">
                         <div class="report-summary-header">
@@ -106,8 +111,9 @@
                             </svg>
                             <span>Carbon Saved</span>
                         </div>
-                        <div class="report-summary-value green-text">1,284 kg</div>
-                        <div class="report-summary-change positive">+18.3% from Jan</div>
+                        <div class="report-summary-value green-text" id="rpt-carbon-saved">1,284 kg</div>
+                        <div class="report-summary-change positive" id="rpt-carbon-change">+18.3% from Jan</div>
+                        <span class="demo-badge" id="rpt-carbon-badge" style="margin-top:4px;">Sample data</span>
                     </div>
                     <div class="report-summary-card">
                         <div class="report-summary-header">
@@ -122,6 +128,8 @@
                         </div>
                         <div class="report-summary-value">94.7%</div>
                         <div class="report-summary-change positive">+2.1% from Jan</div>
+                        <span class="demo-badge" style="margin-top:4px;background:#eff6ff;color:#1d4ed8;">Model
+                            metric</span>
                     </div>
                 </div>
             </div>
@@ -136,6 +144,40 @@
                     stakeholder communication.</p>
 
                 <div class="reports-list">
+                    <!-- MY PERSONAL SCAN REPORT -->
+                    <div class="report-item" style="border-left: 3px solid var(--primary);">
+                        <div class="report-item-icon pdf" style="background: linear-gradient(135deg,#10b981,#059669);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="16" y1="13" x2="8" y2="13" />
+                                <line x1="16" y1="17" x2="8" y2="17" />
+                            </svg>
+                        </div>
+                        <div class="report-item-info">
+                            <h4>My Personal Scan Report <span
+                                    style="background:#d1fae5;color:#065f46;font-size:11px;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px;">LIVE
+                                    DATA</span></h4>
+                            <p>A PDF summary of all your waste scans — showing each category, weight, carbon saved per
+                                scan, and your overall totals.</p>
+                            <div class="report-item-meta">
+                                <span>📄 PDF</span>
+                                <span>🌱 Your real scan history</span>
+                                <span id="my-scan-count-label">Loading...</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary report-download-btn" id="my-report-btn"
+                            onclick="exportMyScansAsPDF(event)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                                <polyline points="7 10 12 15 17 10" />
+                                <line x1="12" y1="15" x2="12" y2="3" />
+                            </svg>
+                            Export My PDF
+                        </button>
+                    </div>
                     <div class="report-item">
                         <div class="report-item-icon pdf">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
