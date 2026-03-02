@@ -1025,8 +1025,10 @@ async function exportMyScansAsPDF(event) {
         console.error('PDF Export Error:', err);
         if (err.message && err.message.includes('authenticated')) {
             alert('Please log in to export your personal report.');
+        } else if (err.message && err.message.includes('timed out')) {
+            alert('Backend is not responding (timed out after 8s).\nMake sure the Node.js backend is running on port 5000.');
         } else {
-            alert('Failed to generate PDF. Make sure the backend is running.');
+            alert('Failed to generate PDF. Make sure the backend is running on port 5000.');
         }
     } finally {
         if (btn) { btn.innerHTML = originalHTML; btn.disabled = false; }
