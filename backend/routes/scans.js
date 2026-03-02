@@ -46,34 +46,22 @@ router.post('/save', protect, async (req, res) => {
 // GET /api/scans/my (Protected)
 router.get('/my', protect, async (req, res) => {
     try {
+        // NOTE: We deliberately avoid .orderBy() here because combining
+        // .where('userId') + .orderBy('createdAt') requires a Firestore
+        // composite index that may not exist. Sorting is done in JS instead.
         const snapshot = await db.collection('scans')
             .where('userId', '==', req.user.id)
-            .orderBy('createdAt', 'desc')
             .get();
 
         const scans = [];
-        snapshot.forEach(doc => {
-            scans.push({ id: doc.id, ...doc.data() });
-        });
+        snapshot.forEach(doc => scans.push({ id: doc.id, ...doc.data() }));
+
+        // Sort newest-first in JavaScript (no index needed)
+        scans.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 
         res.status(200).json(scans);
     } catch (error) {
         console.error('Fetch My Scans Error:', error);
-
-        // Firestore complex queries require exact composite indexes, so if the orderby fails, we'll try without order
-        if (error.message.includes('index')) {
-            console.log("Automatically retrying scans query without sorting due to missing Firestore Index");
-            try {
-                const snapshotFallback = await db.collection('scans').where('userId', '==', req.user.id).get();
-                const scans = [];
-                snapshotFallback.forEach(doc => scans.push({ id: doc.id, ...doc.data() }));
-
-                // Sort array natively
-                scans.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-                return res.status(200).json(scans);
-            } catch (e) { }
-        }
-
         res.status(500).json({ message: 'Error fetching scans' });
     }
 });
