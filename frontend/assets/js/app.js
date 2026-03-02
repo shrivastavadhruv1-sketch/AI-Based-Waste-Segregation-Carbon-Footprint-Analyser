@@ -332,18 +332,42 @@ async function analyzeWaste() {
         }
 
         let dbData = wasteDatabase[categoryKey];
-
         const confidence = Math.round(data.confidence);
-        // We only show waste category — the model does not predict specific item names
-        displayResults(data.wasteType, confidence, dbData);
 
-        // Upload the successful scan specifically to the User's dashboard via Node API automatically!
+        // ── Use Flask's material-aware carbon values if available ────────
+        // carbonData.carbonSaved is confidence-weighted at 1.0 kg.
+        // We multiply by weightKg (1.5 kg default) to get real saved value.
+        const WEIGHT_KG = 1.5;
+        let carbonSavedDisplay = dbData.carbon.saved;  // fallback: static DB value
+        let carbonSavedForSave = null;                 // null → let Node.js compute its own
+
+        if (data.carbonData && data.carbonData.carbonSaved != null) {
+            // Flask returned material-aware value (at 1kg) → scale to our hardcoded weight
+            const flaskCarbonPer1kg = data.carbonData.carbonSaved;
+            carbonSavedDisplay = parseFloat((flaskCarbonPer1kg * WEIGHT_KG).toFixed(3));
+            carbonSavedForSave = carbonSavedDisplay;
+            console.log(
+                `[Carbon] Using Flask material-aware value: ${data.carbonData.subMaterial} ` +
+                `@ ${data.carbonData.emissionFactor} kg CO₂/kg (basis: ${data.carbonData.basis}) ` +
+                `→ ${carbonSavedDisplay} kg saved (${WEIGHT_KG}kg item)`
+            );
+        }
+
+        // We only show waste category — the model does not predict specific item names
+        displayResults(data.wasteType, confidence, dbData, carbonSavedDisplay);
+
+        // Upload the successful scan to the user's dashboard via Node API
         if (typeof apiCall === 'function') {
-            await apiCall('/scans/save', 'POST', {
+            const savePayload = {
                 wasteType: data.wasteType,
                 confidence: confidence,
-                weightKg: 1.5 // Hardcoded 1.5kg generic mass size due to lack of hardware weighing-scale integration
-            });
+                weightKg: WEIGHT_KG
+            };
+            // If Flask gave us a better carbon value, send it so Node stores it directly
+            if (carbonSavedForSave !== null) {
+                savePayload.carbonSavedOverride = carbonSavedForSave;
+            }
+            await apiCall('/scans/save', 'POST', savePayload);
         }
 
     } catch (err) {
@@ -362,7 +386,7 @@ async function analyzeWaste() {
     }
 }
 
-function displayResults(category, confidence, data) {
+function displayResults(category, confidence, data, carbonSavedOverride = null) {
     const resultsPlaceholder = document.getElementById('results-placeholder');
     const resultsContent = document.getElementById('results-content');
 
@@ -383,7 +407,10 @@ function displayResults(category, confidence, data) {
     if (catName) catName.textContent = category.toUpperCase();
     // Hide the sub-item label — we only classify by category, not by specific object
     if (itemName) itemName.style.display = 'none';
-    if (carbonSaved) carbonSaved.textContent = data.carbon.saved;
+
+    // Use Flask's material-aware value if available, otherwise fall back to static DB
+    const savedValue = carbonSavedOverride !== null ? carbonSavedOverride : data.carbon.saved;
+    if (carbonSaved) carbonSaved.textContent = savedValue;
     if (carbonWasted) carbonWasted.textContent = data.carbon.wasted;
     if (disposalList) disposalList.innerHTML = data.disposal.map(d => `<li>${d}</li>`).join('');
     if (reuseTags) reuseTags.innerHTML = data.reuse.map(r => `<span class="reuse-tag">${r}</span>`).join('');

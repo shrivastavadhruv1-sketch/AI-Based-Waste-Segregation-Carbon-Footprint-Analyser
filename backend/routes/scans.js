@@ -13,14 +13,21 @@ const carbonRates = {
 // POST /api/scans/save (Protected)
 router.post('/save', protect, async (req, res) => {
     try {
-        const { wasteType, confidence, weightKg } = req.body;
+        const { wasteType, confidence, weightKg, carbonSavedOverride } = req.body;
 
         if (!wasteType || confidence == null || weightKg == null) {
             return res.status(400).json({ message: 'Missing required scan fields' });
         }
 
-        const rate = carbonRates[wasteType] || 0;
-        const carbonSaved = weightKg * rate;
+        // Use Flask's material-aware carbon value if the frontend sent one,
+        // otherwise fall back to the flat category rate.
+        let carbonSaved;
+        if (carbonSavedOverride != null && !isNaN(carbonSavedOverride)) {
+            carbonSaved = parseFloat(carbonSavedOverride);
+        } else {
+            const rate = carbonRates[wasteType] || 0;
+            carbonSaved = weightKg * rate;
+        }
 
         const newScanRef = db.collection('scans').doc();
 
